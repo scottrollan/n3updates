@@ -1,0 +1,10 @@
+@import '../styles/custom-media.scss';
+@import '../styles/custom-properties.scss';
+
+.searchInput {
+  width: 90%;
+  max-width: 300px;
+  background-color: var(--lightest-gray);
+  display: inherit;
+  margin: 0 auto 1rem;
+}

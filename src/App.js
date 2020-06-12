@@ -1,24 +1,23 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import EditMain from './components/EditMain';
+import Create from './components/Create';
+import Update from './components/Update';
+import UpdateItem from './components/UpdateItem';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Update N3 Database</h1>
+      <Router>
+        <Switch>
+          <Route path="/" exact component={EditMain}></Route>
+          <Route path="/create" exact component={Create}></Route>
+          <Route path="/update" exact component={Update}></Route>
+          <Route path="/update/:id" component={UpdateItem}></Route>
+        </Switch>
+      </Router>
     </div>
   );
 }
