@@ -99,92 +99,133 @@ class NewItem extends React.Component {
     }
   };
   addNewItem = () => {
+    let stateCopy = this.state;
+
+    console.log('pre clean: ', stateCopy);
+    alert('check state copy before clean');
+    Object.keys(stateCopy).map((key, index) => {
+      if (
+        stateCopy[key] === 0 ||
+        stateCopy[key] == '' ||
+        stateCopy[key] === null ||
+        stateCopy[key] === undefined ||
+        stateCopy[key] === false
+      ) {
+        delete stateCopy[key];
+      }
+    });
+
     let purchaseSegment = [
       {
-        containerSize: this.state.amount_container1Size,
-        price: this.state.amount_container1Price,
-      },
-      {
-        containerSize: this.state.amount_container2Size,
-        price: this.state.amount_container2Price,
-      },
-      {
-        containerSize: this.state.amount_container3Size,
-        price: this.state.amount_container3Price,
+        containerSize: stateCopy.amount_container1Size,
+        price: stateCopy.amount_container1Price,
       },
     ];
-    let stateCopy = this.state;
-    let stateArray = [];
-
-    for (let [key, value] of Object.entries(stateCopy)) {
-      const pushThis = `{${key}: ${value} }`;
-      if (value) {
-        stateArray.push(pushThis);
-      }
+    if (stateCopy.amount_container2Size) {
+      purchaseSegment.push({
+        containerSize: stateCopy.amount_container2Size,
+        price: stateCopy.amount_container2Price,
+      });
     }
-    console.log(stateArray);
 
-    let form = {
-      botanicalName: this.state.botanicalName,
-      variety: this.state.variety,
-      commonName: this.state.commonName,
-      regionalName: this.state.regionalName,
-      categoy: this.state.category,
-      lowZone: this.state.lowZone,
-      highZone: this.state.highZone,
-      description: this.state.description,
-      notes: this.state.notes,
+    if (this.state.amount_container3Size) {
+      purchaseSegment.push({
+        containerSize: stateCopy.amount_container3Size,
+        price: stateCopy.amount_container3Price,
+      });
+    }
 
-      soilPh: [
-        { acid: this.state.soilPH_acid },
-        { neutral: this.state.soilPH_neutral },
-        { alkaline: this.state.soilPH_alkaline },
-      ],
+    let phSegment = [];
+    if (stateCopy.soilPH_acid) {
+      phSegment.push('acid');
+    }
+    if (stateCopy.soilPH_neutral) {
+      phSegment.push('neutral');
+    }
+    if (stateCopy.soilPH_alkaline) {
+      phSegment.push('alkaline');
+    }
 
-      soilType: [
-        { clay: this.state.soilType_clay },
-        { average: this.state.soilType_average },
-        { sand: this.state.soilType_sand },
-      ],
+    let typeSegment = [];
+    if (stateCopy.soilType_clay) {
+      typeSegment.push('clay');
+    }
+    if (stateCopy.soilType_average) {
+      typeSegment.push('average');
+    }
+    if (stateCopy.soilType_sand) {
+      typeSegment.push('sand');
+    }
 
-      waterLevel: [
-        { dry: this.state.waterLevel_dry },
-        { average: this.state.waterLevel_average },
-        { wet: this.state.waterLevel_wet },
-      ],
+    let waterSegment = [];
+    if (stateCopy.waterLevel_dry) {
+      waterSegment.push('dry');
+    }
+    if (stateCopy.waterLevel_average) {
+      waterSegment.push('average');
+    }
+    if (stateCopy.waterLevel_wet) {
+      waterSegment.push('wet');
+    }
 
-      sunlightLevel: [
-        { full: this.state.sunlightLevel_full },
-        { partial: this.state.sunlightLevel_partial },
-        { shade: this.state.sunlightLevel_shade },
-      ],
+    let sunSegment = [];
+    if (stateCopy.sunlightLevel_full) {
+      sunSegment.push('full');
+    }
+    if (stateCopy.sunlightLevel_partial) {
+      sunSegment.push('partial');
+    }
+    if (stateCopy.sunlightLevel_shade) {
+      sunSegment.push('shade');
+    }
 
-      foliage: [
-        { evergreen: this.state.foliage_evergreen },
-        { semiEvergreen: this.state.foliage_semiEvergreen },
-        { deciduous: this.state.foliage_deciduous },
-      ],
+    let foliageSegment = [];
+    if (stateCopy.foliage_evergreen) {
+      foliageSegment.push('evergreen');
+    }
+    if (stateCopy.foliage_semiEvergreen) {
+      foliageSegment.push('semi-evergreen');
+    }
+    if (stateCopy.foliage_deciduous) {
+      foliageSegment.push('deciduous');
+    }
 
-      amount: [],
-      purchaseNotes: this.state.purchaseNotes,
-    };
+    delete stateCopy.amount_container1Size;
+    delete stateCopy.amount_container1Price;
+    delete stateCopy.amount_container2Size;
+    delete stateCopy.amount_container2Price;
+    delete stateCopy.amount_container3Size;
+    delete stateCopy.amount_container3Price;
+    delete stateCopy.soilPH_acid;
+    delete stateCopy.soilPH_neutral;
+    delete stateCopy.soilPH_alkaline;
+    delete stateCopy.soilType_clay;
+    delete stateCopy.soilType_average;
+    delete stateCopy.soilType_sand;
+    delete stateCopy.waterLevel_average;
+    delete stateCopy.waterLevel_dry;
+    delete stateCopy.waterLevel_wet;
+    delete stateCopy.sunlightLevel_partial;
+    delete stateCopy.sunlightLevel_full;
+    delete stateCopy.sunlightLevel_shade;
+    delete stateCopy.foliage_evergreen;
+    delete stateCopy.foliage_deciduous;
+    delete stateCopy.foliage_semiEvergreen;
 
-    let filterAmount = purchaseSegment.filter((key) => {
-      //gets rid of value = ''
-      return key.containerSize !== '';
-    });
-    form.amount = [...filterAmount];
+    stateCopy['amount'] = purchaseSegment;
+    stateCopy['soilPH'] = phSegment;
+    stateCopy['soilType'] = typeSegment;
+    stateCopy['waterLevel'] = waterSegment;
+    stateCopy['sunlightLevel'] = sunSegment;
+    stateCopy['foliage'] = foliageSegment;
 
-    // let filter;
+    console.log('post clean: ', stateCopy);
+    alert('check state copy after clean');
 
-    $.each(form, (key, value) => {
-      if (value === '' || value === false || value === 0 || value === null) {
-        delete form[key];
-      }
-    });
+    let form = stateCopy;
 
     console.log('form ', form);
-
+    alert('check form');
     // let filterForm = form.amount.filter((price) => {
     //   //gets rid of value = ''
     //   return price.value !== 0;
