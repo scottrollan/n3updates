@@ -50,11 +50,10 @@ const Dropdowns = (props) => {
               name={d.field}
               value={props[d.field]}
               onChange={props.handleChange}
-              required
             >
               <option value={null}></option>
               {d.select.map((s) => (
-                <option value={s} key={s}>
+                <option value={d.field !== 'category' ? Number(s) : s} key={s}>
                   {s}
                 </option>
               ))}

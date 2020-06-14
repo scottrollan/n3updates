@@ -19,6 +19,11 @@ const EditMain = () => {
             <Button variant="warning">Update An Existing Item</Button>
           </Link>
         </div>
+        <div>
+          <Link to="/delete">
+            <Button variant="danger">Delete An Inventory Item</Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

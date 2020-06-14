@@ -1,5 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
+import { Redirect } from 'react-router-dom';
 import Names from './inputSections/Names';
 import Descriptions from './inputSections/Descriptions';
 import Conditions from './inputSections/Conditions';
@@ -10,6 +11,7 @@ import { Form, Button } from 'react-bootstrap';
 
 class NewItem extends React.Component {
   state = {
+    _type: 'plant',
     botanicalName: '',
     variety: '',
     commonName: '',
@@ -41,6 +43,7 @@ class NewItem extends React.Component {
     amount_container3Size: '',
     amount_container3Price: 0,
     purchaseNotes: '',
+    form: {},
   };
 
   handleChange = (event) => {
@@ -92,21 +95,30 @@ class NewItem extends React.Component {
     ) {
       alert('Please select at least one option for Foliage');
       return false;
+    } else if (this.state.highZone < this.state.lowZone) {
+      alert('"To Zone" must be higher than or equal to "From Zone"');
+    } else if (
+      this.state.lowZone === 0 ||
+      this.state.highZone < this.state.lowZone
+    ) {
+      alert(
+        'Check your zones. "From Zone" must be greater than 0, and "To Zone" must greater than or equal to "From Zone"'
+      );
+    } else if (this.state.category === '') {
+      alert('Please select a category.');
     } else {
       $('#validate').hide();
       $('#addItemButton').show();
-      this.addNewItem();
+      this.prepareForm();
     }
   };
-  addNewItem = () => {
+  prepareForm = () => {
     let stateCopy = this.state;
 
-    console.log('pre clean: ', stateCopy);
-    alert('check state copy before clean');
-    Object.keys(stateCopy).map((key, index) => {
+    Object.keys(stateCopy).forEach((key) => {
       if (
         stateCopy[key] === 0 ||
-        stateCopy[key] == '' ||
+        stateCopy[key] === '' ||
         stateCopy[key] === null ||
         stateCopy[key] === undefined ||
         stateCopy[key] === false
@@ -117,21 +129,27 @@ class NewItem extends React.Component {
 
     let purchaseSegment = [
       {
+        _type: 'amount',
+        _key: '1reniatnoC',
         containerSize: stateCopy.amount_container1Size,
-        price: stateCopy.amount_container1Price,
+        price: Number(stateCopy.amount_container1Price),
       },
     ];
     if (stateCopy.amount_container2Size) {
       purchaseSegment.push({
+        _type: 'amount',
+        _key: '2reniatnoC',
         containerSize: stateCopy.amount_container2Size,
-        price: stateCopy.amount_container2Price,
+        price: Number(stateCopy.amount_container2Price),
       });
     }
 
-    if (this.state.amount_container3Size) {
+    if (stateCopy.amount_container3Size) {
       purchaseSegment.push({
+        _type: 'amount',
+        _key: '3reniatnoC',
         containerSize: stateCopy.amount_container3Size,
-        price: stateCopy.amount_container3Price,
+        price: Number(stateCopy.amount_container3Price),
       });
     }
 
@@ -190,6 +208,14 @@ class NewItem extends React.Component {
       foliageSegment.push('deciduous');
     }
 
+    let imageSegment = {
+      _type: 'image',
+      asset: {
+        _ref: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
+        _type: 'reference',
+      },
+    };
+
     delete stateCopy.amount_container1Size;
     delete stateCopy.amount_container1Price;
     delete stateCopy.amount_container2Size;
@@ -218,37 +244,31 @@ class NewItem extends React.Component {
     stateCopy['waterLevel'] = waterSegment;
     stateCopy['sunlightLevel'] = sunSegment;
     stateCopy['foliage'] = foliageSegment;
+    stateCopy['name'] = stateCopy.commonName;
+    stateCopy['image'] = imageSegment;
 
-    console.log('post clean: ', stateCopy);
-    alert('check state copy after clean');
+    this.setState({ form: stateCopy });
+  };
 
-    let form = stateCopy;
-
-    console.log('form ', form);
-    alert('check form');
-    // let filterForm = form.amount.filter((price) => {
-    //   //gets rid of value = ''
-    //   return price.value !== 0;
-    // });
-    // let filteredArray = filter.filter((categories) => {
-    //   //gets rid of value = ''
-    //   return categories.value !== '';
-    // });
-    // let uncompiledArray = [];
-    // let indexStr = '';
-    // filteredArray.map((f) => {
-    //   if (f.value === true) {
-    //     indexStr = `"${f.name}" in ${f.array}`;
-    //   } else if (f.name === 'category') {
-    //     indexStr = `category == "${f.value}"`;
-    //   } else if (f.name === 'zone') {
-    //     indexStr = `lowZone <= ${f.value} && highZone >= ${f.value}`;
-    //   }
-    //   return uncompiledArray.push(indexStr);
-    // });
-    // filters = uncompiledArray.join(' && '); //turns array into string with conditions joined by "&&"
-    // const query = `*[${filters}]`;
-    // this.props.addItem(query);
+  submitForm = async () => {
+    const form = this.state.form;
+    form.lowZone = Number(form.lowZone);
+    form.highZone = Number(form.highZone);
+    delete form.form;
+    console.log(form);
+    alert('was form console.logged?');
+    const sanityClient = require('@sanity/client');
+    const client = sanityClient({
+      projectId: 'ogg4t6rs',
+      dataset: 'production',
+      token:
+        'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
+      useCdn: false, // `false` if you want to ensure fresh data
+    });
+    client.create(form);
+    // let response = await client.create(form);
+    alert(`${form.botanicalName} was created with an ID of {response._id}`);
+    return <Redirect to="/" />;
   };
 
   render() {
@@ -258,7 +278,7 @@ class NewItem extends React.Component {
           id="addForm"
           className={styles.wrapper}
           // onSubmit={(event) => this.addNewItem(event)}
-          onSubmit={(event) => this.addNewItem(event)}
+          onSubmit={() => this.submitForm()}
         >
           <Names
             handleChange={(e) => this.handleChange(e)}
@@ -307,7 +327,6 @@ class NewItem extends React.Component {
             <Button
               id="addItemButton"
               type="submit"
-              onClick={() => this.alertConditions()}
               style={{ display: 'none' }}
             >
               Add Inventory Item
