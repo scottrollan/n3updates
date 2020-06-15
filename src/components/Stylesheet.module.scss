@@ -9,11 +9,13 @@
   display: flex;
   justify-content: space-around;
   width: 100%;
+  flex-wrap: wrap;
   @include mediumWidthPadding;
   margin: 2vh auto;
+  align-items: stretch;
 }
 .buttonDiv > * {
-  margin: 0 0.5rem;
+  margin: 1rem 0.5rem;
 }
 
 .nameButton {
@@ -81,6 +83,17 @@
   justify-content: space-between;
   flex-wrap: wrap;
 }
+
+.centerWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.centerWrapper > * {
+  margin: 2rem;
+}
+
 .formGroup {
   width: 100%;
   display: flex;
@@ -96,7 +109,7 @@
   width: 100vw;
   height: 100vh;
   background-color: var(--overlay);
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
 }

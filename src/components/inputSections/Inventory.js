@@ -46,7 +46,7 @@ const Inventory = (props) => {
               <Form.Control
                 type="text"
                 name={a.containerField}
-                value={props[a.container]}
+                // value={props[a.container]}
                 onChange={props.handleChange}
                 required={a.required ? true : false}
               />
@@ -56,7 +56,7 @@ const Inventory = (props) => {
               <Form.Control
                 type="number"
                 name={a.priceField}
-                value={props[a.price]}
+                // value={props[a.price]}
                 onChange={props.handleChange}
                 required={a.required ? true : false}
               />

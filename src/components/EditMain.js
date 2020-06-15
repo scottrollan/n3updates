@@ -6,24 +6,24 @@ import styles from './Stylesheet.module.scss';
 const EditMain = () => {
   return (
     <div className={styles.page} style={{ width: '100%' }}>
-      <div>Update NNN Database</div>
       <div className={styles.buttonDiv}>
-        <div>
-          <Link to="/create">
-            <Button variant="success">Add A New Inventory Item</Button>
-          </Link>
-        </div>
+        <Link to="/create">
+          <Button style={{ height: '100%' }} variant="success">
+            Add A New Inventory Item
+          </Button>
+        </Link>
 
-        <div>
-          <Link to="/update">
-            <Button variant="warning">Update An Existing Item</Button>
-          </Link>
-        </div>
-        <div>
-          <Link to="/delete">
-            <Button variant="danger">Delete An Inventory Item</Button>
-          </Link>
-        </div>
+        <Link to="/update">
+          <Button style={{ height: '100%' }} variant="warning">
+            Update An Existing Item
+          </Button>
+        </Link>
+
+        <Link to="/delete">
+          <Button style={{ height: '100%' }} variant="danger">
+            Delete An Inventory Item
+          </Button>
+        </Link>
       </div>
     </div>
   );

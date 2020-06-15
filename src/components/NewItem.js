@@ -1,13 +1,13 @@
 import React from 'react';
 import $ from 'jquery';
 import { Redirect } from 'react-router-dom';
+import { Form, Button, Spinner } from 'react-bootstrap';
 import Names from './inputSections/Names';
 import Descriptions from './inputSections/Descriptions';
 import Conditions from './inputSections/Conditions';
 import Dropdowns from './inputSections/Dropdowns';
 import Inventory from './inputSections/Inventory';
 import styles from './Stylesheet.module.scss';
-import { Form, Button } from 'react-bootstrap';
 
 class NewItem extends React.Component {
   state = {
@@ -44,6 +44,7 @@ class NewItem extends React.Component {
     amount_container3Price: 0,
     purchaseNotes: '',
     form: {},
+    redirect: false,
   };
 
   handleChange = (event) => {
@@ -73,33 +74,35 @@ class NewItem extends React.Component {
       this.state.soilType_sand === false
     ) {
       alert('Please select at least one option for Soil Type');
-      return false;
     } else if (
       this.state.waterLevel_average === false &&
       this.state.waterLevel_dry === false &&
       this.state.waterLevel_wet === false
     ) {
       alert('Please select at least one option for Water');
-      return false;
     } else if (
       this.state.sunlightLevel_full === false &&
       this.state.sunlightLevel_partial === false &&
       this.state.sunlightLevel_shade === false
     ) {
       alert('Please select at least one option for Sun');
-      return false;
     } else if (
       this.state.foliage_deciduous === false &&
       this.state.foliage_evergreen === false &&
       this.state.foliage_semiEvergreen === false
     ) {
       alert('Please select at least one option for Foliage');
-      return false;
-    } else if (this.state.highZone < this.state.lowZone) {
+    } else if (Number(this.state.highZone) < Number(this.state.lowZone)) {
+      console.log(
+        'lowZone: ',
+        this.state.lowZone,
+        '  highZone: ',
+        this.state.highZone
+      );
       alert('"To Zone" must be higher than or equal to "From Zone"');
     } else if (
-      this.state.lowZone === 0 ||
-      this.state.highZone < this.state.lowZone
+      Number(this.state.lowZone) === 0 ||
+      Number(this.state.highZone) < Number(this.state.lowZone)
     ) {
       alert(
         'Check your zones. "From Zone" must be greater than 0, and "To Zone" must greater than or equal to "From Zone"'
@@ -250,13 +253,15 @@ class NewItem extends React.Component {
     this.setState({ form: stateCopy });
   };
 
-  submitForm = async () => {
+  submitForm = () => {
+    $('#addItemButton').hide();
+    $('#spinner').show();
     const form = this.state.form;
     form.lowZone = Number(form.lowZone);
     form.highZone = Number(form.highZone);
     delete form.form;
-    console.log(form);
-    alert('was form console.logged?');
+    delete form.redirect;
+
     const sanityClient = require('@sanity/client');
     const client = sanityClient({
       projectId: 'ogg4t6rs',
@@ -266,12 +271,17 @@ class NewItem extends React.Component {
       useCdn: false, // `false` if you want to ensure fresh data
     });
     client.create(form);
-    // let response = await client.create(form);
-    alert(`${form.botanicalName} was created with an ID of {response._id}`);
-    return <Redirect to="/" />;
+
+    alert(`${form.botanicalName} was created`);
+    $('#validate').show();
+    $('#spinner').hide();
+    this.setState({ redirect: true });
   };
 
   render() {
+    if (this.state.redirect === true) {
+      return <Redirect to="/" />;
+    }
     return (
       <div style={{ textAlign: 'center' }}>
         <Form
@@ -331,6 +341,12 @@ class NewItem extends React.Component {
             >
               Add Inventory Item
             </Button>
+            <Spinner
+              id="spinner"
+              animation="grow"
+              variant="success"
+              style={{ display: 'none' }}
+            />
           </div>
         </Form>
       </div>
