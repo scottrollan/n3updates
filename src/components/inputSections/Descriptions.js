@@ -13,7 +13,7 @@ const Descriptions = (props) => {
           placeholder="This is where the plant's main desciption would go"
           name="description"
           value={props.description}
-          onChange={props.handleChange}
+          onChange={(e) => props.handleChange(e, 'description')}
           required
         />
       </Form.Label>
@@ -25,7 +25,7 @@ const Descriptions = (props) => {
           placeholder="Optional additional notes, e.g. fertilizing, transplanting instructions, etc."
           name="notes"
           value={props.notes}
-          onChange={props.handleChange}
+          onChange={(e) => props.handleChange(e, 'notes')}
         />
       </Form.Label>
     </Form.Group>

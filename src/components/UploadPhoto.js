@@ -4,14 +4,14 @@ import { Form } from 'react-bootstrap';
 const UploadPhoto = () => {
   return (
     <React.Fragment>
-      <Form>
+      <Form.Group>
         <Form.File
           label="Upload New Photo"
           lang="en"
           custom
           style={{ textAlign: 'left', fontSize: '1.7vw' }}
         />
-      </Form>
+      </Form.Group>
     </React.Fragment>
   );
 };

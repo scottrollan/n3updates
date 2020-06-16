@@ -31,8 +31,8 @@ const Names = (props) => {
             <Form.Control
               type="text"
               name={n.field}
-              // value={props[n.field]}
-              onChange={props.handleChange}
+              value={props[n.field]}
+              onChange={(e) => props.handleChange(e, n.field)}
               required={
                 n.field === 'botanicalName' || n.field === 'commonName'
                   ? true

@@ -49,7 +49,7 @@ const Dropdowns = (props) => {
               as="select"
               name={d.field}
               value={props[d.field]}
-              onChange={props.handleChange}
+              onChange={(e) => props.handleChange(e, d.field)}
             >
               <option value={null}></option>
               {d.select.map((s) => (
