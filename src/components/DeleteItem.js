@@ -3,6 +3,7 @@ import { Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import $ from 'jquery';
 import Confirm from './popups/Confirm';
+import ActionComplete from './popups/ActionComplete';
 import styles from './Stylesheet.module.scss';
 
 const DeleteItem = ({ match }) => {
@@ -19,6 +20,7 @@ const DeleteItem = ({ match }) => {
     useCdn: false, // `false` if you want to ensure fresh data
   });
   const query = `*[_id == "${docId}"]`;
+  let thisPlant = '';
 
   useEffect(() => {
     client
@@ -31,6 +33,7 @@ const DeleteItem = ({ match }) => {
         setPhotoLink(
           `https://cdn.sanity.io/images/ogg4t6rs/production/${photoArray[1]}-${photoArray[2]}.${photoArray[3]}`
         );
+        thisPlant = res[0].botanicalName + ' ' + res[0].variety;
       })
       .catch((err) => {
         console.log(err);
@@ -41,22 +44,32 @@ const DeleteItem = ({ match }) => {
     $('#confirm').css('display', 'none');
   };
 
-  const deleteItem = async () => {
+  const closeSuccess = () => {
+    history.push('/');
+  };
+
+  const doDelete = async () => {
     $('#confirm').css('display', 'none');
 
     let response = await client.delete(docId);
-    alert(`Inventory item with id: ${response.transactionId} has been deleted`);
-    history.push('/');
+    console.log(response);
+    $('#success').css('display', 'flex');
   };
 
   return (
     <React.Fragment>
       <Confirm
-        botanicalName={item.botanicalName}
-        variety={item.variety}
+        botanicalName={thisPlant}
+        variety={null}
         action="delete"
         stopAction={() => doNotDelete()}
-        doAction={() => deleteItem()}
+        doAction={() => doDelete()}
+      />
+      <ActionComplete
+        botanicalName={item.botanicalName}
+        variety={item.variety}
+        action="deleted"
+        closeMe={() => closeSuccess()}
       />
       <h3>Delete Inventory Item</h3>
       <div className={styles.centerWrapper}>
@@ -69,7 +82,8 @@ const DeleteItem = ({ match }) => {
             display:
               item.variety === '' || item.variety === undefined
                 ? 'none'
-                : 'inherit',
+                : 'flex',
+            flexDirection: 'column',
           }}
         >
           <h6 style={{ textDecoration: 'underline' }}>Variety</h6>
@@ -97,9 +111,12 @@ const DeleteItem = ({ match }) => {
       </div>
       <div className={styles.centerWrapper}>
         <div
+          className={styles.centerWrapper}
           style={{
             border: '1px solid var(--dark-gray)',
             backgroundColor: 'var(--lightest-gray',
+            minWidth: '40%',
+            minHeight: '80px',
           }}
         >
           {item.description}

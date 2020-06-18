@@ -40,7 +40,7 @@ const Inventory = (props) => {
         );
       })}
       <Button variant="outline-dark" onClick={() => props.addContainer()}>
-        Add Another Container
+        {props.addOption}
       </Button>
       <Form.Group>
         <Form.Label>

@@ -70,9 +70,9 @@ class UpdateItem extends React.Component {
     const rName = await res.regionalName;
     this.setState({ regionalName: rName });
     const lz = await res.lowZone;
-    this.setState({ lowZone: lz });
+    this.setState({ lowZone: Number(lz) });
     const hz = await res.highZone;
-    this.setState({ highZone: hz });
+    this.setState({ highZone: Number(hz) });
     const cat = await res.category;
     this.setState({ category: cat });
     const desc = await res.description;
@@ -279,6 +279,7 @@ class UpdateItem extends React.Component {
     delete form.container3Price;
     delete form.container4Size;
     delete form.container4Price;
+    delete form.photoLink;
     delete form.form;
     delete form.redirect;
 
@@ -290,12 +291,9 @@ class UpdateItem extends React.Component {
         'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
       useCdn: false, // `false` if you want to ensure fresh data
     });
-    client
-      .createOrReplace(form)
-      .then(() => {})
-      .catch((err) => {
-        console.error('Oh no, the update failed: ', err.message);
-      });
+    client.createOrReplace(form).catch((err) => {
+      console.error('Oh no, the update failed: ', err.message);
+    });
 
     $('#success').css('display', 'flex');
   };
@@ -346,8 +344,8 @@ class UpdateItem extends React.Component {
             handleChange={(e, field) =>
               this.setState({ [field]: e.target.value })
             }
-            lowZone={this.state.lowZone}
-            highZone={this.state.highZone}
+            lowZone={Number(this.state.lowZone)}
+            highZone={Number(this.state.highZone)}
             category={this.state.category}
           />
           <Descriptions
@@ -416,6 +414,7 @@ class UpdateItem extends React.Component {
               this.setState({ [field]: e.target.value })
             }
             addContainer={this.addContainer}
+            addOption={'Add Another Container'}
             purchaseNotes={this.state.purchaseNotes}
           />
 

@@ -2,6 +2,8 @@ import React from 'react';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
+import Confirm from './popups/Confirm';
+import ActionComplete from './popups/ActionComplete';
 import Conditions from './inputSections/Conditions';
 import Names from './inputSections/Names';
 import Dropdowns from './inputSections/Dropdowns';
@@ -9,6 +11,8 @@ import Descriptions from './inputSections/Descriptions';
 import Inventory from './inputSections/Inventory';
 import UploadPhoto from './UploadPhoto';
 import styles from './Stylesheet.module.scss';
+
+let form = {};
 
 class NewItem extends React.Component {
   state = {
@@ -56,11 +60,8 @@ class NewItem extends React.Component {
     this.setState({ [array]: pushThisArray });
   };
 
-  handleChange = (event) => {
-    const {
-      target: { name, value },
-    } = event;
-    this.setState({ [name]: value });
+  handleChange = (field, val) => {
+    this.setState({ [field]: val });
   };
 
   addContainer = () => {
@@ -74,7 +75,6 @@ class NewItem extends React.Component {
     };
     amountCopy.push(newContainer);
     this.setState({ amount: [...amountCopy] });
-    console.log(this.state);
   };
   alertConditions = () => {
     if (
@@ -116,7 +116,7 @@ class NewItem extends React.Component {
     }
   };
   prepareForm = () => {
-    let stateCopy = this.state;
+    let stateCopy = { ...this.state };
 
     //prepare the "amount" array with container/price
     stateCopy.amount = [];
@@ -126,12 +126,14 @@ class NewItem extends React.Component {
       containerSize: stateCopy.container1Size,
       price: Number(stateCopy.container1Price),
     };
+
     const amt2 = {
       _key: '2reniatoC',
       _type: 'amount',
       containerSize: stateCopy.container2Size,
       price: Number(stateCopy.container2Price),
     };
+
     const amt3 = {
       _key: '3reniatoC',
       _type: 'amount',
@@ -163,7 +165,6 @@ class NewItem extends React.Component {
       },
     };
     //set arrays
-    stateCopy['amount'] = [...this.state.amount];
     stateCopy['soilPH'] = [...this.state.soilPH];
     stateCopy['soilType'] = [...this.state.soilType];
     stateCopy['waterLevel'] = [...this.state.waterLevel];
@@ -173,19 +174,28 @@ class NewItem extends React.Component {
     stateCopy['image'] = imageSegment;
     stateCopy['_type'] = 'plant';
 
-    this.setState({ form: stateCopy });
+    form = { ...stateCopy };
+    $('#confirm').css('display', 'flex');
+    console.log('form...', form);
+    alert('check form');
+  };
+
+  doNotCreate = () => {
+    $('#confirm').css('display', 'none');
+  };
+
+  doCreate = () => {
+    $('#confirm').css('display', 'none');
+    this.submitForm();
+  };
+
+  closeSuccess = () => {
+    $('#success').css('display', 'none');
+    this.setState({ redirect: true });
   };
 
   submitForm = () => {
-    $('#addItemButton').hide();
-    $('#spinner').show();
-    const form = this.state.form;
-    const fixLowZone = Number(form.lowZone);
-    form.lowZone = fixLowZone;
-    const fixHighZone = Number(form.highZone);
-    form.highZone = fixHighZone;
     //delete all state key/value pairs used to create the above arrays
-    delete form.optionText;
     delete form.container1Size;
     delete form.container1Price;
     delete form.container2Size;
@@ -194,8 +204,15 @@ class NewItem extends React.Component {
     delete form.container3Price;
     delete form.container4Size;
     delete form.container4Price;
+    delete form.optionText;
+    delete form.photoLink;
     delete form.form;
     delete form.redirect;
+    //convert string to number
+    const fixLow = Number(form.lowZone);
+    form.lowZone = fixLow;
+    const fixHigh = Number(form.highZone);
+    form.highZone = fixHigh;
 
     const sanityClient = require('@sanity/client');
     const client = sanityClient({
@@ -205,11 +222,11 @@ class NewItem extends React.Component {
         'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
       useCdn: false, // `false` if you want to ensure fresh data
     });
-    client.create(form);
+    client.create(form).catch((err) => {
+      console.error('Oh no, create failed: ', err.message);
+    });
 
-    alert(`${form.botanicalName} was created`);
-    $('#spinner').hide();
-    this.setState({ redirect: true });
+    $('#success').css('display', 'flex');
   };
 
   render() {
@@ -218,12 +235,20 @@ class NewItem extends React.Component {
     }
     return (
       <div style={{ textAlign: 'center' }}>
-        <Form
-          id="addForm"
-          className={styles.wrapper}
-          // onSubmit={(event) => this.addNewItem(event)}
-          onSubmit={() => this.submitForm()}
-        >
+        <Confirm
+          botanicalName={this.state.botanicalName}
+          variety={this.state.variety}
+          action="create"
+          stopAction={() => this.doNotCreate()}
+          doAction={() => this.doCreate()}
+        />
+        <ActionComplete
+          botanicalName={this.state.botanicalName}
+          variety={this.state.variety}
+          action="created"
+          closeMe={() => this.closeSuccess()}
+        />
+        <Form id="addForm" className={styles.wrapper}>
           <Names
             handleChange={(e, field) =>
               this.setState({ [field]: e.target.value })
@@ -290,15 +315,29 @@ class NewItem extends React.Component {
             container3Price={this.state.container3Price}
             container4Price={this.state.container4Price}
             handleChange={(field, e) =>
-              this.setState({ [field]: e.target.value })
+              this.handleChange([field], e.target.value)
             }
             addContainer={this.addContainer}
+            addOption={
+              this.state.amount.length === 0
+                ? 'Add at least one container'
+                : 'Add Another Container'
+            }
             purchaseNotes={this.state.purchaseNotes}
           />
           <div
-            style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              paddingBottom: '12vh',
+            }}
           >
-            <Button id="addItemButton" variant="outline-success" type="submit">
+            <Button
+              id="addItemButton"
+              variant="outline-success"
+              onClick={() => this.alertConditions()}
+            >
               Add Inventory Item
             </Button>
             <Spinner

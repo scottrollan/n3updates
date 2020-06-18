@@ -85,13 +85,15 @@
 }
 
 .centerWrapper {
-  width: 100%;
+  width: calc(100% - 2rem);
+  margin: 1rem;
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
 .centerWrapper > * {
-  margin: 2rem;
+  margin: 1rem;
 }
 
 .formGroup {

@@ -11,9 +11,10 @@ const ActionComplete = (props) => {
           <i>
             {props.botanicalName} {props.variety}
           </i>{' '}
-          was successfully {props.action}
-          <Button onClick={() => props.closeMe()}>Close</Button>
+          was successfully {props.action}{' '}
         </h6>
+
+        <Button onClick={() => props.closeMe()}>Close</Button>
       </div>
     </div>
   );
