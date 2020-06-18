@@ -14,7 +14,6 @@ const SearchNameInput = (props) => {
       .map((i) => i.replace(/^\w/, (c) => c.toUpperCase()))
       .join(' ');
     const query = ` *[botanicalName == "${botanicalInput}" || commonName == "${commonInput}" || botanicalName match "${botanicalInput}" || commonName match "${commonInput}"]`;
-    console.log(query);
 
     props.searchByName(query);
   };

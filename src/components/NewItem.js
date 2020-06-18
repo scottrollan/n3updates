@@ -1,12 +1,13 @@
 import React from 'react';
-import $ from 'jquery';
-import { Redirect } from 'react-router-dom';
 import { Form, Button, Spinner } from 'react-bootstrap';
-import Names from './inputSections/Names';
-import Descriptions from './inputSections/Descriptions';
+import { Redirect } from 'react-router-dom';
+import $ from 'jquery';
 import Conditions from './inputSections/Conditions';
+import Names from './inputSections/Names';
 import Dropdowns from './inputSections/Dropdowns';
+import Descriptions from './inputSections/Descriptions';
 import Inventory from './inputSections/Inventory';
+import UploadPhoto from './UploadPhoto';
 import styles from './Stylesheet.module.scss';
 
 class NewItem extends React.Component {
@@ -18,33 +19,41 @@ class NewItem extends React.Component {
     regionalName: '',
     description: '',
     notes: '',
-    soilPH_acid: false,
-    soilPH_neutral: false,
-    soilPH_alkaline: false,
-    soilType_clay: false,
-    soilType_average: false,
-    soilType_sand: false,
-    waterLevel_dry: false,
-    waterLevel_average: false,
-    waterLevel_wet: false,
-    sunlightLevel_full: false,
-    sunlightLevel_partial: false,
-    sunlightLevel_shade: false,
-    foliage_evergreen: false,
-    foliage_semiEvergreen: false,
-    foliage_deciduous: false,
     category: '',
     lowZone: 0,
     highZone: 0,
-    amount_container1Size: '',
-    amount_container1Price: 0,
-    amount_container2Size: '',
-    amount_container2Price: 0,
-    amount_container3Size: '',
-    amount_container3Price: 0,
+    optionText: '',
+    photoLink: '',
+    soilType: [],
+    soilPH: [],
+    waterLevel: [],
+    sunlightLevel: [],
+    foliage: [],
+    amount: [],
+    container1Size: '',
+    container1Price: 0,
+    container2Size: '',
+    container2Price: 0,
+    container3Size: '',
+    container3Price: 0,
+    container4Size: '',
+    container4Price: 0,
     purchaseNotes: '',
     form: {},
     redirect: false,
+  };
+
+  handleCheck = (id) => {
+    const name = $(`#${id}`).attr('choice');
+    const array = $(`#${id}`).attr('array');
+    let pushThisArray = this.state[array];
+    const alreadyIncludes = pushThisArray.includes(name);
+    if (alreadyIncludes) {
+      pushThisArray = pushThisArray.filter((word) => word !== name);
+    } else {
+      pushThisArray.push(name);
+    }
+    this.setState({ [array]: pushThisArray });
   };
 
   handleChange = (event) => {
@@ -54,51 +63,43 @@ class NewItem extends React.Component {
     this.setState({ [name]: value });
   };
 
-  handleCheck = (event) => {
-    const field = event.target.name;
-    this.setState((prevState) => ({
-      [field]: !prevState[field],
-    }));
+  addContainer = () => {
+    const amountCopy = [...this.state.amount];
+    const cNumber = this.state.amount.length + 1;
+    const newContainer = {
+      containerSize: '',
+      price: 0,
+      _key: `${cNumber}reniatnoC`,
+      _type: 'amount',
+    };
+    amountCopy.push(newContainer);
+    this.setState({ amount: [...amountCopy] });
+    console.log(this.state);
   };
-
   alertConditions = () => {
     if (
-      this.state.soilPH_acid === false &&
-      this.state.soilPH_alkaline === false &&
-      this.state.soilPH_neutral === false
+      this.state.botanicalName === '' ||
+      this.state.botanicalName === undefined
     ) {
+      alert('Please fill in the Botanical Name field');
+    }
+    if (this.state.commonName === '' || this.state.commonName === undefined) {
+      alert('Please fill in the Comman Name field');
+    }
+    if (this.state.description === '' || this.state.description === undefined) {
+      alert('Please fill in the Description field');
+    }
+    if (this.state.soilPH.length === 0) {
       alert('Please select at least one option for Soil pH');
-    } else if (
-      this.state.soilType_average === false &&
-      this.state.soilType_clay === false &&
-      this.state.soilType_sand === false
-    ) {
+    } else if (this.state.soilType.lenth === 0) {
       alert('Please select at least one option for Soil Type');
-    } else if (
-      this.state.waterLevel_average === false &&
-      this.state.waterLevel_dry === false &&
-      this.state.waterLevel_wet === false
-    ) {
+    } else if (this.state.waterLevel.length === 0) {
       alert('Please select at least one option for Water');
-    } else if (
-      this.state.sunlightLevel_full === false &&
-      this.state.sunlightLevel_partial === false &&
-      this.state.sunlightLevel_shade === false
-    ) {
+    } else if (this.state.sunlightLevel.length === 0) {
       alert('Please select at least one option for Sun');
-    } else if (
-      this.state.foliage_deciduous === false &&
-      this.state.foliage_evergreen === false &&
-      this.state.foliage_semiEvergreen === false
-    ) {
+    } else if (this.state.foliage.length === 0) {
       alert('Please select at least one option for Foliage');
     } else if (Number(this.state.highZone) < Number(this.state.lowZone)) {
-      console.log(
-        'lowZone: ',
-        this.state.lowZone,
-        '  highZone: ',
-        this.state.highZone
-      );
       alert('"To Zone" must be higher than or equal to "From Zone"');
     } else if (
       Number(this.state.lowZone) === 0 ||
@@ -110,7 +111,6 @@ class NewItem extends React.Component {
     } else if (this.state.category === '') {
       alert('Please select a category.');
     } else {
-      $('#validate').hide();
       $('#addItemButton').show();
       this.prepareForm();
     }
@@ -118,99 +118,43 @@ class NewItem extends React.Component {
   prepareForm = () => {
     let stateCopy = this.state;
 
-    Object.keys(stateCopy).forEach((key) => {
-      if (
-        stateCopy[key] === 0 ||
-        stateCopy[key] === '' ||
-        stateCopy[key] === null ||
-        stateCopy[key] === undefined ||
-        stateCopy[key] === false
-      ) {
-        delete stateCopy[key];
-      }
-    });
+    //prepare the "amount" array with container/price
+    stateCopy.amount = [];
+    const amt1 = {
+      _key: '1reniatoC',
+      _type: 'amount',
+      containerSize: stateCopy.container1Size,
+      price: Number(stateCopy.container1Price),
+    };
+    const amt2 = {
+      _key: '2reniatoC',
+      _type: 'amount',
+      containerSize: stateCopy.container2Size,
+      price: Number(stateCopy.container2Price),
+    };
+    const amt3 = {
+      _key: '3reniatoC',
+      _type: 'amount',
+      containerSize: stateCopy.container3Size,
+      price: Number(stateCopy.container3Price),
+    };
+    const amt4 = {
+      _key: '4reniatoC',
+      _type: 'amount',
+      containerSize: stateCopy.container4Size,
+      price: Number(stateCopy.container4Price),
+    };
+    stateCopy.amount.push(amt1);
+    stateCopy.amount.push(amt2);
+    stateCopy.amount.push(amt3);
+    stateCopy.amount.push(amt4);
 
-    let purchaseSegment = [
-      {
-        _type: 'amount',
-        _key: '1reniatnoC',
-        containerSize: stateCopy.amount_container1Size,
-        price: Number(stateCopy.amount_container1Price),
-      },
-    ];
-    if (stateCopy.amount_container2Size) {
-      purchaseSegment.push({
-        _type: 'amount',
-        _key: '2reniatnoC',
-        containerSize: stateCopy.amount_container2Size,
-        price: Number(stateCopy.amount_container2Price),
-      });
-    }
+    stateCopy.amount = stateCopy.amount.filter(
+      (a) => a.containerSize !== undefined
+    );
+    stateCopy.amount = stateCopy.amount.filter((a) => a.containerSize !== '');
 
-    if (stateCopy.amount_container3Size) {
-      purchaseSegment.push({
-        _type: 'amount',
-        _key: '3reniatnoC',
-        containerSize: stateCopy.amount_container3Size,
-        price: Number(stateCopy.amount_container3Price),
-      });
-    }
-
-    let phSegment = [];
-    if (stateCopy.soilPH_acid) {
-      phSegment.push('acid');
-    }
-    if (stateCopy.soilPH_neutral) {
-      phSegment.push('neutral');
-    }
-    if (stateCopy.soilPH_alkaline) {
-      phSegment.push('alkaline');
-    }
-
-    let typeSegment = [];
-    if (stateCopy.soilType_clay) {
-      typeSegment.push('clay');
-    }
-    if (stateCopy.soilType_average) {
-      typeSegment.push('average');
-    }
-    if (stateCopy.soilType_sand) {
-      typeSegment.push('sand');
-    }
-
-    let waterSegment = [];
-    if (stateCopy.waterLevel_dry) {
-      waterSegment.push('dry');
-    }
-    if (stateCopy.waterLevel_average) {
-      waterSegment.push('average');
-    }
-    if (stateCopy.waterLevel_wet) {
-      waterSegment.push('wet');
-    }
-
-    let sunSegment = [];
-    if (stateCopy.sunlightLevel_full) {
-      sunSegment.push('full');
-    }
-    if (stateCopy.sunlightLevel_partial) {
-      sunSegment.push('partial');
-    }
-    if (stateCopy.sunlightLevel_shade) {
-      sunSegment.push('shade');
-    }
-
-    let foliageSegment = [];
-    if (stateCopy.foliage_evergreen) {
-      foliageSegment.push('evergreen');
-    }
-    if (stateCopy.foliage_semiEvergreen) {
-      foliageSegment.push('semi-evergreen');
-    }
-    if (stateCopy.foliage_deciduous) {
-      foliageSegment.push('deciduous');
-    }
-
+    //set placeholder image
     let imageSegment = {
       _type: 'image',
       asset: {
@@ -218,37 +162,16 @@ class NewItem extends React.Component {
         _type: 'reference',
       },
     };
-
-    delete stateCopy.amount_container1Size;
-    delete stateCopy.amount_container1Price;
-    delete stateCopy.amount_container2Size;
-    delete stateCopy.amount_container2Price;
-    delete stateCopy.amount_container3Size;
-    delete stateCopy.amount_container3Price;
-    delete stateCopy.soilPH_acid;
-    delete stateCopy.soilPH_neutral;
-    delete stateCopy.soilPH_alkaline;
-    delete stateCopy.soilType_clay;
-    delete stateCopy.soilType_average;
-    delete stateCopy.soilType_sand;
-    delete stateCopy.waterLevel_average;
-    delete stateCopy.waterLevel_dry;
-    delete stateCopy.waterLevel_wet;
-    delete stateCopy.sunlightLevel_partial;
-    delete stateCopy.sunlightLevel_full;
-    delete stateCopy.sunlightLevel_shade;
-    delete stateCopy.foliage_evergreen;
-    delete stateCopy.foliage_deciduous;
-    delete stateCopy.foliage_semiEvergreen;
-
-    stateCopy['amount'] = purchaseSegment;
-    stateCopy['soilPH'] = phSegment;
-    stateCopy['soilType'] = typeSegment;
-    stateCopy['waterLevel'] = waterSegment;
-    stateCopy['sunlightLevel'] = sunSegment;
-    stateCopy['foliage'] = foliageSegment;
+    //set arrays
+    stateCopy['amount'] = [...this.state.amount];
+    stateCopy['soilPH'] = [...this.state.soilPH];
+    stateCopy['soilType'] = [...this.state.soilType];
+    stateCopy['waterLevel'] = [...this.state.waterLevel];
+    stateCopy['sunlightLevel'] = [...this.state.sunlightLevel];
+    stateCopy['foliage'] = [...this.state.foliage];
     stateCopy['name'] = stateCopy.commonName;
     stateCopy['image'] = imageSegment;
+    stateCopy['_type'] = 'plant';
 
     this.setState({ form: stateCopy });
   };
@@ -257,8 +180,20 @@ class NewItem extends React.Component {
     $('#addItemButton').hide();
     $('#spinner').show();
     const form = this.state.form;
-    form.lowZone = Number(form.lowZone);
-    form.highZone = Number(form.highZone);
+    const fixLowZone = Number(form.lowZone);
+    form.lowZone = fixLowZone;
+    const fixHighZone = Number(form.highZone);
+    form.highZone = fixHighZone;
+    //delete all state key/value pairs used to create the above arrays
+    delete form.optionText;
+    delete form.container1Size;
+    delete form.container1Price;
+    delete form.container2Size;
+    delete form.container2Price;
+    delete form.container3Size;
+    delete form.container3Price;
+    delete form.container4Size;
+    delete form.container4Price;
     delete form.form;
     delete form.redirect;
 
@@ -273,7 +208,6 @@ class NewItem extends React.Component {
     client.create(form);
 
     alert(`${form.botanicalName} was created`);
-    $('#validate').show();
     $('#spinner').hide();
     this.setState({ redirect: true });
   };
@@ -291,7 +225,9 @@ class NewItem extends React.Component {
           onSubmit={() => this.submitForm()}
         >
           <Names
-            handleChange={(e) => this.handleChange(e)}
+            handleChange={(e, field) =>
+              this.setState({ [field]: e.target.value })
+            }
             botanicalName={this.state.botanicalName}
             variety={this.state.variety}
             commonName={this.state.commonName}
@@ -299,46 +235,70 @@ class NewItem extends React.Component {
           />
 
           <Descriptions
-            handleChange={(e) => this.handleChange(e)}
+            handleChange={(e, field) =>
+              this.setState({ [field]: e.target.value })
+            }
             description={this.state.description}
             notes={this.state.notes}
           />
 
-          <Conditions handleCheck={(e) => this.handleCheck(e)} />
+          <UploadPhoto />
+
+          <Conditions
+            handleCheck={(id) => this.handleCheck(id)}
+            soilType={this.state.soilType}
+            soilType_clay={this.state.soilType.includes('clay')}
+            soilType_average={this.state.soilType.includes('average')}
+            soilType_sand={this.state.soilType.includes('sand')}
+            soilPH={this.state.soilPH}
+            soilPH_acid={this.state.soilPH.includes('acid')}
+            soilPH_neutral={this.state.soilPH.includes('neutral')}
+            soilPH_alkaline={this.state.soilPH.includes('alkaline')}
+            waterLevel={this.state.waterLevel}
+            waterLevel_wet={this.state.waterLevel.includes('wet')}
+            waterLevel_average={this.state.waterLevel.includes('average')}
+            waterLevel_dry={this.state.waterLevel.includes('dry')}
+            sunlightLevel={this.state.sunlightLevel}
+            sunlightLevel_full={this.state.sunlightLevel.includes('full')}
+            sunlightLevel_partial={this.state.sunlightLevel.includes('partial')}
+            sunlightLevel_shade={this.state.sunlightLevel.includes('shade')}
+            foliage={this.state.foliage}
+            foliage_evergreen={this.state.foliage.includes('evergreen')}
+            foliage_semiEvergreen={this.state.foliage.includes(
+              'semi-evergreen'
+            )}
+            foliage_deciduous={this.state.foliage.includes('deciduous')}
+          />
 
           <Dropdowns
-            handleChange={(e) => this.handleChange(e)}
+            handleChange={(e, field) =>
+              this.setState({ [field]: e.target.value })
+            }
             lowZone={this.state.lowZone}
             highZone={this.state.highZone}
             category={this.state.category}
           />
 
           <Inventory
-            handleChange={(e) => this.handleChange(e)}
-            unit1container={this.state.amount_container1Size}
-            unit1price={this.state.amount_container1Price}
-            unit2container={this.state.amount_container2Size}
-            unit2price={this.state.amount_container2Price}
-            unit3container={this.state.amount_container3Size}
-            unit3price={this.state.amount_container3Price}
-            purchaseNotes={this.state.purchaseNote}
+            amountMapArray={this.state.amount}
+            container1Size={this.state.container1Size}
+            container2Size={this.state.container2Size}
+            container3Size={this.state.container3Size}
+            container4Size={this.state.container4Size}
+            container1Price={this.state.container1Price}
+            container2Price={this.state.container2Price}
+            container3Price={this.state.container3Price}
+            container4Price={this.state.container4Price}
+            handleChange={(field, e) =>
+              this.setState({ [field]: e.target.value })
+            }
+            addContainer={this.addContainer}
+            purchaseNotes={this.state.purchaseNotes}
           />
           <div
             style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
           >
-            <Button
-              id="validate"
-              variant="outline-danger"
-              onClick={() => this.alertConditions()}
-            >
-              Check Entry
-            </Button>
-
-            <Button
-              id="addItemButton"
-              type="submit"
-              style={{ display: 'none' }}
-            >
+            <Button id="addItemButton" variant="outline-success" type="submit">
               Add Inventory Item
             </Button>
             <Spinner

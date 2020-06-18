@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import $ from 'jquery';
-import ConfirmDelete from './ConfirmDelete';
+import Confirm from './popups/Confirm';
 import styles from './Stylesheet.module.scss';
 
 const DeleteItem = ({ match }) => {
@@ -51,11 +51,12 @@ const DeleteItem = ({ match }) => {
 
   return (
     <React.Fragment>
-      <ConfirmDelete
+      <Confirm
         botanicalName={item.botanicalName}
         variety={item.variety}
-        stopDelete={() => doNotDelete()}
-        goDelete={() => deleteItem()}
+        action="delete"
+        stopAction={() => doNotDelete()}
+        doAction={() => deleteItem()}
       />
       <h3>Delete Inventory Item</h3>
       <div className={styles.centerWrapper}>
@@ -106,7 +107,7 @@ const DeleteItem = ({ match }) => {
       </div>
       <div className={styles.centerWrapper}>
         <Button
-          variant="danger"
+          variant="outline-danger"
           onClick={() => $('#confirm').css('display', 'flex')}
         >
           Delete This Item

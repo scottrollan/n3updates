@@ -9,21 +9,21 @@ const Conditions = (props) => {
       choices: [
         {
           choice: 'soilPH_acid',
-          name: 'ph',
+          choiceLabel: 'acid',
           array: 'soilPH',
-          choiceName: 'acid',
+          arrayLabel: 'ph',
         },
         {
           choice: 'soilPH_neutral',
-          name: 'ph',
+          choiceLabel: 'neutral',
           array: 'soilPH',
-          choiceName: 'neutral',
+          arrayLabel: 'ph',
         },
         {
           choice: 'soilPH_alkaline',
-          name: 'ph',
+          choiceLabel: 'alkaline',
           array: 'soilPH',
-          choiceName: 'alkaline',
+          arrayLabel: 'ph',
         },
       ],
     },
@@ -32,21 +32,21 @@ const Conditions = (props) => {
       choices: [
         {
           choice: 'soilType_clay',
-          name: 'type',
+          choiceLabel: 'clay',
           array: 'soilType',
-          choiceName: 'clay',
+          arrayLabel: 'type',
         },
         {
           choice: 'soilType_average',
-          name: 'type',
+          choiceLabel: 'average',
           array: 'soilType',
-          choiceName: 'average',
+          arrayLabel: 'type',
         },
         {
           choice: 'soilType_sand',
-          name: 'type',
+          choiceLabel: 'sand',
           array: 'soilType',
-          choiceName: 'sand',
+          arrayLabel: 'type',
         },
       ],
     },
@@ -55,21 +55,21 @@ const Conditions = (props) => {
       choices: [
         {
           choice: 'waterLevel_dry',
-          name: 'water',
+          choiceLabel: 'dry',
           array: 'waterLevel',
-          choiceName: 'dry',
+          arrayLabel: 'water',
         },
         {
           choice: 'waterLevel_average',
-          name: 'water',
+          choiceLabel: 'average',
           array: 'waterLevel',
-          choiceName: 'average',
+          arrayLabel: 'water',
         },
         {
           choice: 'waterLevel_wet',
-          name: 'water',
+          choiceLabel: 'wet',
           array: 'waterLevel',
-          choiceName: 'wet',
+          arrayLabel: 'water',
         },
       ],
     },
@@ -78,21 +78,21 @@ const Conditions = (props) => {
       choices: [
         {
           choice: 'sunlightLevel_full',
-          name: 'sun',
+          choiceLabel: 'full',
           array: 'sunlightLevel',
-          choiceName: 'full',
+          arrayLabel: 'sun',
         },
         {
           choice: 'sunlightLevel_partial',
-          name: 'sun',
+          choiceLabel: 'partial',
           array: 'sunlightLevel',
-          choiceName: 'partial',
+          arrayLabel: 'sun',
         },
         {
           choice: 'sunlightLevel_shade',
-          name: 'sun',
+          choiceLabel: 'shade',
           array: 'sunlightLevel',
-          choiceName: 'shade',
+          arrayLabel: 'sun',
         },
       ],
     },
@@ -101,21 +101,21 @@ const Conditions = (props) => {
       choices: [
         {
           choice: 'foliage_evergreen',
-          name: 'foliage',
+          choiceLabel: 'evergreen',
           array: 'foliage',
-          choiceName: 'evergreen',
+          arrayLabel: 'foliage',
         },
         {
           choice: 'foliage_semiEvergreen',
-          name: 'foliage',
+          choiceLabel: 'semi-evergreen',
           array: 'foliage',
-          choiceName: 'semiEvergreen',
+          arrayLabel: 'foliage',
         },
         {
           choice: 'foliage_deciduous',
-          name: 'foliage',
+          choiceLabel: 'deciduous',
           array: 'foliage',
-          choiceName: 'deciduous',
+          arrayLabel: 'foliage',
         },
       ],
     },
@@ -140,8 +140,9 @@ const Conditions = (props) => {
                   return (
                     <Form.Check
                       key={x.choice}
-                      label={x.choiceName}
-                      name={x.choiceName}
+                      choice={x.choiceLabel}
+                      label={x.choiceLabel}
+                      arraylabel={x.arrayLabel}
                       id={x.choice}
                       value={props[x.choice]}
                       checked={props[x.choice]}

@@ -1,10 +1,11 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
+import styles from './Stylesheet.module.scss';
 
 const UploadPhoto = () => {
   return (
     <React.Fragment>
-      <Form.Group>
+      <Form.Group className={styles.formGroup}>
         <Form.File
           label="Upload New Photo"
           lang="en"

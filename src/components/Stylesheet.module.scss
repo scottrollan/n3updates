@@ -96,14 +96,14 @@
 
 .formGroup {
   width: 100%;
+  margin: 2rem inherit;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   flex-wrap: wrap;
-  align-items: flex-end;
 }
 
-.confirmDelete {
+.confirm {
   position: fixed;
   left: 0;
   top: 0;
@@ -113,16 +113,18 @@
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 990;
 }
 
-.deleteButtonWrapper {
+.confirmButtonWrapper {
   @include mediumWidthPadding;
   background-color: var(--lightest-gray);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  z-index: 991;
 }
 
-.deleteButtonWrapper > * {
+.confirmButtonWrapper > * {
   margin: 1rem 0;
 }
