@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
+import { Client } from '../constants/index';
 import Confirm from './popups/Confirm';
 import ActionComplete from './popups/ActionComplete';
 import Conditions from './inputSections/Conditions';
@@ -24,6 +25,7 @@ class UpdateItem extends React.Component {
     regionalName: '',
     description: '',
     notes: '',
+    imageAssetRef: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
     category: '',
     lowZone: 0,
     highZone: 0,
@@ -46,20 +48,13 @@ class UpdateItem extends React.Component {
     purchaseNotes: '',
     form: {},
     redirect: false,
+    selectedFile: '',
   };
 
   fetchItem = async () => {
-    const sanityClient = require('@sanity/client');
-    const client = sanityClient({
-      projectId: 'ogg4t6rs',
-      dataset: 'production',
-      token:
-        'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
-      useCdn: false, // `false` if you want to ensure fresh data
-    });
     const query = `*[_id == "${this.state._id}"]`;
 
-    const response = await client.fetch(query);
+    const response = await Client.fetch(query);
     const res = await response[0];
     const bName = await res.botanicalName;
     this.setState({ botanicalName: bName });
@@ -226,15 +221,15 @@ class UpdateItem extends React.Component {
     );
     stateCopy.amount = stateCopy.amount.filter((a) => a.containerSize !== '');
 
-    //set placeholder image
+    //set image
     let imageSegment = {
       _type: 'image',
       asset: {
-        _ref: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
+        _ref: this.state.imageAssetRef,
         _type: 'reference',
       },
     };
-    //set arrays
+    //set nested elements
     stateCopy['amount'] = [...this.state.amount];
     stateCopy['soilPH'] = [...this.state.soilPH];
     stateCopy['soilType'] = [...this.state.soilType];
@@ -245,13 +240,8 @@ class UpdateItem extends React.Component {
     stateCopy['image'] = imageSegment;
     stateCopy['_type'] = 'plant';
 
-    // this.setState({ form: { ...stateCopy } });
-    // console.log('stateCopy: ', stateCopy);
     form = { ...stateCopy };
     $('#confirm').css('display', 'flex');
-    console.log('form...', form);
-    // console.log('from state.form...', this.state.form);
-    // alert('check form and state in console');
   };
 
   doNotUpdate = () => {
@@ -268,6 +258,17 @@ class UpdateItem extends React.Component {
     this.setState({ redirect: true });
   };
 
+  fileSelectHandler = (e) => {
+    const sFile = e.target.files[0];
+    this.setState({ selectedFile: sFile });
+  };
+
+  fileUploadHandler = async () => {
+    let imageRes = await Client.assets.upload('image', this.state.selectedFile);
+    this.setState({ photoLink: imageRes.url });
+    this.setState({ imageAssetRef: imageRes._id });
+  };
+
   submitForm = () => {
     //delete all state key/value pairs not used in plant schema
     delete form.optionText;
@@ -279,19 +280,13 @@ class UpdateItem extends React.Component {
     delete form.container3Price;
     delete form.container4Size;
     delete form.container4Price;
+    delete form.imageAssetRef;
     delete form.photoLink;
     delete form.form;
+    delete form.selectedFile;
     delete form.redirect;
 
-    const sanityClient = require('@sanity/client');
-    const client = sanityClient({
-      projectId: 'ogg4t6rs',
-      dataset: 'production',
-      token:
-        'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
-      useCdn: false, // `false` if you want to ensure fresh data
-    });
-    client.createOrReplace(form).catch((err) => {
+    Client.createOrReplace(form).catch((err) => {
       console.error('Oh no, the update failed: ', err.message);
     });
 
@@ -371,7 +366,12 @@ class UpdateItem extends React.Component {
               className={styles.smallSection}
               style={{ alignSelf: 'center' }}
             >
-              <UploadPhoto />
+              <UploadPhoto
+                fileSelectHandler={(e) => this.fileSelectHandler(e)}
+                fileUploadHandler={() => this.fileUploadHandler()}
+                selectedFile={this.state.selectedFile}
+                required={false}
+              />
             </span>
           </Form.Group>
 

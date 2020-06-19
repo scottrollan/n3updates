@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Client } from '../constants/index';
 import SearchNameInput from './SearchNameInput';
 import { Link } from 'react-router-dom';
 import styles from './Stylesheet.module.scss';
@@ -7,15 +8,7 @@ const Delete = () => {
   const [items, setItems] = useState([]);
 
   const searchNow = async (query) => {
-    const sanityClient = require('@sanity/client');
-    const client = sanityClient({
-      projectId: 'ogg4t6rs',
-      dataset: 'production',
-      token: '',
-      useCdn: true, // `false` if you want to ensure fresh data
-    });
-
-    let response = await client.fetch(query);
+    let response = await Client.fetch(query);
     setItems([...response]);
 
     if (response === undefined || response.length === 0) {

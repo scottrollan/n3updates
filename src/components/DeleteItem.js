@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Client } from '../constants/index';
 import { Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import $ from 'jquery';
@@ -10,21 +11,13 @@ const DeleteItem = ({ match }) => {
   const history = useHistory();
   const [item, setItem] = useState({});
   const [photoLink, setPhotoLink] = useState('');
+  const [thisPlant, setThisPlant] = useState('');
   const docId = match.params.id;
-  const sanityClient = require('@sanity/client');
-  const client = sanityClient({
-    projectId: 'ogg4t6rs',
-    dataset: 'production',
-    token:
-      'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
-    useCdn: false, // `false` if you want to ensure fresh data
-  });
+
   const query = `*[_id == "${docId}"]`;
-  let thisPlant = '';
 
   useEffect(() => {
-    client
-      .fetch(query)
+    Client.fetch(query)
       .then((res) => {
         console.log(res);
         setItem(Object.assign({}, res[0]));
@@ -33,12 +26,13 @@ const DeleteItem = ({ match }) => {
         setPhotoLink(
           `https://cdn.sanity.io/images/ogg4t6rs/production/${photoArray[1]}-${photoArray[2]}.${photoArray[3]}`
         );
-        thisPlant = res[0].botanicalName + ' ' + res[0].variety;
+        setThisPlant(res[0].botanicalName + ' ' + res[0].variety);
+        console.log(thisPlant);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [query, thisPlant]);
 
   const doNotDelete = () => {
     $('#confirm').css('display', 'none');
@@ -51,7 +45,7 @@ const DeleteItem = ({ match }) => {
   const doDelete = async () => {
     $('#confirm').css('display', 'none');
 
-    let response = await client.delete(docId);
+    let response = await Client.delete(docId);
     console.log(response);
     $('#success').css('display', 'flex');
   };

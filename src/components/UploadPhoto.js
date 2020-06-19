@@ -1,17 +1,20 @@
 import React from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import styles from './Stylesheet.module.scss';
 
-const UploadPhoto = () => {
+const UploadPhoto = (props) => {
   return (
     <React.Fragment>
       <Form.Group className={styles.formGroup}>
         <Form.File
-          label="Upload New Photo"
-          lang="en"
-          custom
-          style={{ textAlign: 'left', fontSize: '1.7vw' }}
+          className="position-relative"
+          required={props.required}
+          name="image"
+          label="Select Image"
+          onChange={(e) => props.fileSelectHandler(e)}
+          id="upload"
         />
+        <Button onClick={() => props.fileUploadHandler()}>Upload Now</Button>
       </Form.Group>
     </React.Fragment>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
+import { Client } from '../constants/index';
 import Confirm from './popups/Confirm';
 import ActionComplete from './popups/ActionComplete';
 import Conditions from './inputSections/Conditions';
@@ -26,6 +27,7 @@ class NewItem extends React.Component {
     category: '',
     lowZone: 0,
     highZone: 0,
+    imageAssetRef: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
     optionText: '',
     photoLink: '',
     soilType: [],
@@ -44,6 +46,7 @@ class NewItem extends React.Component {
     container4Price: 0,
     purchaseNotes: '',
     form: {},
+    selectedFile: null,
     redirect: false,
   };
 
@@ -110,6 +113,11 @@ class NewItem extends React.Component {
       );
     } else if (this.state.category === '') {
       alert('Please select a category.');
+    } else if (
+      this.state.container1Size === undefined ||
+      this.state.container1Size === ''
+    ) {
+      alert('Please enter at least one conatiner and price');
     } else {
       $('#addItemButton').show();
       this.prepareForm();
@@ -160,7 +168,7 @@ class NewItem extends React.Component {
     let imageSegment = {
       _type: 'image',
       asset: {
-        _ref: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
+        _ref: this.state.imageAssetRef,
         _type: 'reference',
       },
     };
@@ -176,8 +184,6 @@ class NewItem extends React.Component {
 
     form = { ...stateCopy };
     $('#confirm').css('display', 'flex');
-    console.log('form...', form);
-    alert('check form');
   };
 
   doNotCreate = () => {
@@ -192,6 +198,17 @@ class NewItem extends React.Component {
   closeSuccess = () => {
     $('#success').css('display', 'none');
     this.setState({ redirect: true });
+  };
+
+  fileSelectHandler = (e) => {
+    const sFile = e.target.files[0];
+    this.setState({ selectedFile: sFile });
+  };
+
+  fileUploadHandler = async () => {
+    let imageRes = await Client.assets.upload('image', this.state.selectedFile);
+    this.setState({ photoLink: imageRes.url });
+    this.setState({ imageAssetRef: imageRes._id });
   };
 
   submitForm = () => {
@@ -214,15 +231,7 @@ class NewItem extends React.Component {
     const fixHigh = Number(form.highZone);
     form.highZone = fixHigh;
 
-    const sanityClient = require('@sanity/client');
-    const client = sanityClient({
-      projectId: 'ogg4t6rs',
-      dataset: 'production',
-      token:
-        'sktPD2r791blYmo8n26ZCurNfamiwCJ2KfgbdmPsIYPFGywjAK4roSijSwqTsH83LYiPvFIfDmOH1JL5jtzjGdpADZoEVIaKxzv8vJyD4Wj8lX04qNqzLEbVDN3uLAoEFRNWgLJga6t6LCSV6JGMOiiXG9MtjWVXdyxgHmQfWik5siHH65dt',
-      useCdn: false, // `false` if you want to ensure fresh data
-    });
-    client.create(form).catch((err) => {
+    Client.create(form).catch((err) => {
       console.error('Oh no, create failed: ', err.message);
     });
 
@@ -267,7 +276,12 @@ class NewItem extends React.Component {
             notes={this.state.notes}
           />
 
-          <UploadPhoto />
+          <UploadPhoto
+            fileSelectHandler={(e) => this.fileSelectHandler(e)}
+            fileUploadHandler={() => this.fileUploadHandler()}
+            selectedFile={this.state.selectedFile}
+            required={true}
+          />
 
           <Conditions
             handleCheck={(id) => this.handleCheck(id)}
