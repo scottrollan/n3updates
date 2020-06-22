@@ -1,20 +1,51 @@
-import React from 'react';
-import { Form, Button } from 'react-bootstrap';
-import styles from './Stylesheet.module.scss';
+import React, { useState } from 'react';
+import { Form, Button, Spinner } from 'react-bootstrap';
 
 const UploadPhoto = (props) => {
+  const [disable, setDisable] = useState(true);
+
+  const handleChange = (event) => {
+    props.fileSelectHandler(event);
+    setDisable(false);
+  };
+
+  const handleLoader = () => {
+    props.fileUploadHandler();
+    setDisable(true);
+  };
   return (
     <React.Fragment>
-      <Form.Group className={styles.formGroup}>
+      <Form.Group>
         <Form.File
           className="position-relative"
           required={props.required}
           name="image"
-          label="Select Image"
-          onChange={(e) => props.fileSelectHandler(e)}
+          onChange={(e) => handleChange(e)}
           id="upload"
         />
-        <Button onClick={() => props.fileUploadHandler()}>Upload Now</Button>
+        <div
+          style={{
+            height: '75px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Button
+            id="uploadButton"
+            onClick={() => handleLoader()}
+            style={{ marginTop: '1rem' }}
+            disabled={disable}
+          >
+            Upload Image
+          </Button>
+          <Spinner
+            id="spinnerUpload"
+            animation="grow"
+            variant="success"
+            style={{ display: 'none' }}
+          />
+        </div>
       </Form.Group>
     </React.Fragment>
   );

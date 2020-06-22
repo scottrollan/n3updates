@@ -438,7 +438,7 @@ class UpdateItem extends React.Component {
                 id="spinnerU"
                 animation="grow"
                 variant="success"
-                style={{ display: 'none' }}
+                style={{ display: 'none', height: '100%' }}
               />
             </div>
           </div>

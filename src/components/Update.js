@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import $ from 'jquery';
+import NotFound from './popups/NotFound';
 import { Client } from '../constants/index';
 import SearchNameInput from './SearchNameInput';
 import { Link } from 'react-router-dom';
@@ -12,13 +14,16 @@ const Update = () => {
     setItems([...response]);
 
     if (response === undefined || response.length === 0) {
-      alert("Sorry. I can't find a plant by that botanical or common name.");
+      $('#notFound').css('display', 'flex');
     }
   };
 
   return (
     <React.Fragment>
-      <h3>Update</h3>
+      <NotFound />
+      <h3>
+        <i>Update An Inventory Item</i>
+      </h3>
       <SearchNameInput searchByName={(query) => searchNow(query)} />
       <div>
         {items.map((item) => (

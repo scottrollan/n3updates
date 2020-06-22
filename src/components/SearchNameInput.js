@@ -19,8 +19,8 @@ const SearchNameInput = (props) => {
   };
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h3>Search Botanical Name or Common Name: &nbsp;</h3>
+    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+      <h5>Search Botanical Name or Common Name: &nbsp;</h5>
       <Form onSubmit={(event) => searchByName(event)} className="nav-link">
         <input
           placeholder="Search"

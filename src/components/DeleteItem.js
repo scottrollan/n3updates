@@ -19,7 +19,6 @@ const DeleteItem = ({ match }) => {
   useEffect(() => {
     Client.fetch(query)
       .then((res) => {
-        console.log(res);
         setItem(Object.assign({}, res[0]));
         const foto = res[0].image.asset._ref;
         const photoArray = foto.split('-');
@@ -27,7 +26,6 @@ const DeleteItem = ({ match }) => {
           `https://cdn.sanity.io/images/ogg4t6rs/production/${photoArray[1]}-${photoArray[2]}.${photoArray[3]}`
         );
         setThisPlant(res[0].botanicalName + ' ' + res[0].variety);
-        console.log(thisPlant);
       })
       .catch((err) => {
         console.log(err);

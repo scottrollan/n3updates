@@ -206,6 +206,10 @@ class NewItem extends React.Component {
   };
 
   fileUploadHandler = async () => {
+    $('#uploadButton').hide();
+    $('#spinnerUpload').show();
+    setTimeout(() => $('#spinnerUpload').hide(), 1200);
+    setTimeout(() => $('#uploadButton').show(), 1500);
     let imageRes = await Client.assets.upload('image', this.state.selectedFile);
     this.setState({ photoLink: imageRes.url });
     this.setState({ imageAssetRef: imageRes._id });
@@ -223,6 +227,8 @@ class NewItem extends React.Component {
     delete form.container4Price;
     delete form.optionText;
     delete form.photoLink;
+    delete form.imageAssetRef;
+    delete form.selecrtedFile;
     delete form.form;
     delete form.redirect;
     //convert string to number
@@ -275,14 +281,19 @@ class NewItem extends React.Component {
             description={this.state.description}
             notes={this.state.notes}
           />
-
-          <UploadPhoto
-            fileSelectHandler={(e) => this.fileSelectHandler(e)}
-            fileUploadHandler={() => this.fileUploadHandler()}
-            selectedFile={this.state.selectedFile}
-            required={true}
-          />
-
+          <div className={styles.formGroup}>
+            <img
+              src={this.state.photoLink}
+              alt=""
+              style={{ maxHeight: '120px' }}
+            />
+            <UploadPhoto
+              fileSelectHandler={(e) => this.fileSelectHandler(e)}
+              fileUploadHandler={() => this.fileUploadHandler()}
+              selectedFile={this.state.selectedFile}
+              required={true}
+            />
+          </div>
           <Conditions
             handleCheck={(id) => this.handleCheck(id)}
             soilType={this.state.soilType}

@@ -12,7 +12,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <h1>Update N3 Database</h1>
+      <h1 style={{ marginBottom: '2rem' }}>N3 Database</h1>
       <Router>
         <ScrollToTop />
         <Switch>

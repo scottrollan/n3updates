@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import $ from 'jquery';
 import { Client } from '../constants/index';
+import NotFound from './popups/NotFound';
 import SearchNameInput from './SearchNameInput';
 import { Link } from 'react-router-dom';
 import styles from './Stylesheet.module.scss';
@@ -12,13 +14,16 @@ const Delete = () => {
     setItems([...response]);
 
     if (response === undefined || response.length === 0) {
-      alert("Sorry. I can't find a plant by that botanical or common name.");
+      $('#notFound').css('display', 'flex');
     }
   };
 
   return (
     <React.Fragment>
-      <h3>Delete</h3>
+      <NotFound />
+      <h3>
+        <i>Delete An Inventory Item</i>
+      </h3>
       <SearchNameInput searchByName={(query) => searchNow(query)} />
       <div>
         {items.map((item) => (
