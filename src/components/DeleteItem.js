@@ -101,18 +101,14 @@ const DeleteItem = ({ match }) => {
           <i>{item.category}</i>
         </div>
       </div>
-      <div className={styles.centerWrapper}>
-        <div
-          className={styles.centerWrapper}
-          style={{
-            border: '1px solid var(--dark-gray)',
-            backgroundColor: 'var(--lightest-gray',
-            minWidth: '40%',
-            minHeight: '80px',
-          }}
-        >
-          {item.description}
-        </div>
+      <div
+        className={styles.mediumBox}
+        style={{
+          border: '1px solid var(--dark-gray)',
+          backgroundColor: 'var(--lightest-gray',
+        }}
+      >
+        {item.description}
       </div>
       <div className={styles.centerWrapper}>
         <Button
@@ -123,7 +119,7 @@ const DeleteItem = ({ match }) => {
         </Button>
       </div>
       <div className={styles.centerWrapper}>
-        <img src={photoLink} alt="" />
+        <img src={photoLink} alt="" style={{ width: '220px' }} />
       </div>
     </React.Fragment>
   );

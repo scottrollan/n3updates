@@ -25,7 +25,7 @@ class UpdateItem extends React.Component {
     regionalName: '',
     description: '',
     notes: '',
-    imageAssetRef: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
+    imageAssetRef: '',
     category: '',
     lowZone: 0,
     highZone: 0,
@@ -78,6 +78,7 @@ class UpdateItem extends React.Component {
     this.setState({ optionText: opt.charAt(0).toUpperCase() });
     this.setState({ category: opt });
     const foto = await res.image.asset._ref;
+    this.setState({ imageAssetRef: foto });
     const photoArray = foto.split('-');
     const photoUrl = `https://cdn.sanity.io/images/ogg4t6rs/production/${photoArray[1]}-${photoArray[2]}.${photoArray[3]}`;
     this.setState({ photoLink: photoUrl });
@@ -221,7 +222,8 @@ class UpdateItem extends React.Component {
     );
     stateCopy.amount = stateCopy.amount.filter((a) => a.containerSize !== '');
 
-    //set image
+    //set image if not there
+
     let imageSegment = {
       _type: 'image',
       asset: {
@@ -302,7 +304,7 @@ class UpdateItem extends React.Component {
       return <Redirect to="/" />;
     }
     return (
-      <React.Fragment>
+      <div className={styles.centerWrapper}>
         <Confirm
           botanicalName={this.state.botanicalName}
           variety={this.state.variety}
@@ -350,29 +352,21 @@ class UpdateItem extends React.Component {
             description={this.state.description}
             notes={this.state.notes}
           />
-          <Form.Group className={styles.descrPhoto}>
-            <Form.Label
-              className={styles.largeSection}
-              style={{ padding: '0 20%' }}
-            >
-              Photo
-              <img
-                src={this.state.photoLink}
-                alt="none"
-                style={{ width: '100%', height: 'auto' }}
-              />
-            </Form.Label>
-            <span
-              className={styles.smallSection}
-              style={{ alignSelf: 'center' }}
-            >
-              <UploadPhoto
-                fileSelectHandler={(e) => this.fileSelectHandler(e)}
-                fileUploadHandler={() => this.fileUploadHandler()}
-                selectedFile={this.state.selectedFile}
-                required={false}
-              />
-            </span>
+
+          <Form.Group className={styles.formGroup}>
+            <img
+              src={this.state.photoLink}
+              alt="none"
+              style={{ maxHeight: '120px' }}
+            />
+
+            <UploadPhoto
+              buttonText="Upload Different Image"
+              fileSelectHandler={(e) => this.fileSelectHandler(e)}
+              fileUploadHandler={() => this.fileUploadHandler()}
+              selectedFile={this.state.selectedFile}
+              required={false}
+            />
           </Form.Group>
 
           <Conditions
@@ -443,7 +437,7 @@ class UpdateItem extends React.Component {
             </div>
           </div>
         </Form>
-      </React.Fragment>
+      </div>
     );
   }
 }

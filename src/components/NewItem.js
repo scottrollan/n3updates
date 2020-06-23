@@ -3,6 +3,7 @@ import { Form, Button, Spinner } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
 import { Client } from '../constants/index';
+import MissingField from './popups/MissingField';
 import Confirm from './popups/Confirm';
 import ActionComplete from './popups/ActionComplete';
 import Conditions from './inputSections/Conditions';
@@ -29,7 +30,8 @@ class NewItem extends React.Component {
     highZone: 0,
     imageAssetRef: 'image-a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188-png',
     optionText: '',
-    photoLink: '',
+    photoLink:
+      'https://cdn.sanity.io/images/ogg4t6rs/production/a3d829ee02102d79da412cf8fe5f0fac1577254c-175x188.png',
     soilType: [],
     soilPH: [],
     waterLevel: [],
@@ -48,6 +50,7 @@ class NewItem extends React.Component {
     form: {},
     selectedFile: null,
     redirect: false,
+    missingField: '',
   };
 
   handleCheck = (id) => {
@@ -84,40 +87,69 @@ class NewItem extends React.Component {
       this.state.botanicalName === '' ||
       this.state.botanicalName === undefined
     ) {
-      alert('Please fill in the Botanical Name field');
+      this.setState({
+        missingField: 'Please fill in the Botanical Name field',
+      });
+      $('#missingField').css('display', 'flex');
     }
     if (this.state.commonName === '' || this.state.commonName === undefined) {
-      alert('Please fill in the Comman Name field');
+      this.setState({ missingField: 'Please fill in the Comman Name field' });
+      $('#missingField').css('display', 'flex');
     }
     if (this.state.description === '' || this.state.description === undefined) {
-      alert('Please fill in the Description field');
+      this.setState({ missingField: 'Please fill in the Description field' });
+      $('#missingField').css('display', 'flex');
     }
     if (this.state.soilPH.length === 0) {
-      alert('Please select at least one option for Soil pH');
-    } else if (this.state.soilType.lenth === 0) {
-      alert('Please select at least one option for Soil Type');
+      this.setState({
+        missingField: 'Please select at least one option for Soil pH',
+      });
+      $('#missingField').css('display', 'flex');
+    } else if (this.state.soilType.length === 0) {
+      this.setState({
+        missingField: 'Please select at least one option for Soil Type',
+      });
+      $('#missingField').css('display', 'flex');
     } else if (this.state.waterLevel.length === 0) {
-      alert('Please select at least one option for Water');
+      this.setState({
+        missingField: 'Please select at least one option for Water',
+      });
+      $('#missingField').css('display', 'flex');
     } else if (this.state.sunlightLevel.length === 0) {
-      alert('Please select at least one option for Sun');
+      this.setState({
+        missingField: 'Please select at least one option for Sun',
+      });
+      $('#missingField').css('display', 'flex');
     } else if (this.state.foliage.length === 0) {
-      alert('Please select at least one option for Foliage');
+      this.setState({
+        missingField: 'Please select at least one option for Foliage',
+      });
+      $('#missingField').css('display', 'flex');
     } else if (Number(this.state.highZone) < Number(this.state.lowZone)) {
-      alert('"To Zone" must be higher than or equal to "From Zone"');
+      this.setState({
+        missingField: '"To Zone" must be higher than or equal to "From Zone"',
+      });
+      $('#missingField').css('display', 'flex');
     } else if (
       Number(this.state.lowZone) === 0 ||
       Number(this.state.highZone) < Number(this.state.lowZone)
     ) {
-      alert(
-        'Check your zones. "From Zone" must be greater than 0, and "To Zone" must greater than or equal to "From Zone"'
-      );
+      this.setState({
+        missingField:
+          'Check your zones. "From Zone" must be greater than 0, and "To Zone" must greater than or equal to "From Zone"',
+      });
+      $('#missingField').css('display', 'flex');
     } else if (this.state.category === '') {
-      alert('Please select a category.');
+      this.setState({ missingField: 'Please select a category.' });
+      $('#missingField').css('display', 'flex');
     } else if (
       this.state.container1Size === undefined ||
       this.state.container1Size === ''
     ) {
-      alert('Please enter at least one conatiner and price');
+      this.setState({
+        missingField: 'Please enter at least one conatiner and price',
+      });
+      $('#missingField').css('display', 'flex');
     } else {
       $('#addItemButton').show();
       this.prepareForm();
@@ -228,9 +260,10 @@ class NewItem extends React.Component {
     delete form.optionText;
     delete form.photoLink;
     delete form.imageAssetRef;
-    delete form.selecrtedFile;
+    delete form.selectedFile;
     delete form.form;
     delete form.redirect;
+    delete form.missingField;
     //convert string to number
     const fixLow = Number(form.lowZone);
     form.lowZone = fixLow;
@@ -250,6 +283,7 @@ class NewItem extends React.Component {
     }
     return (
       <div style={{ textAlign: 'center' }}>
+        <MissingField missingField={this.state.missingField} />
         <Confirm
           botanicalName={this.state.botanicalName}
           variety={this.state.variety}
@@ -288,6 +322,7 @@ class NewItem extends React.Component {
               style={{ maxHeight: '120px' }}
             />
             <UploadPhoto
+              buttonText="New Image Upload"
               fileSelectHandler={(e) => this.fileSelectHandler(e)}
               fileUploadHandler={() => this.fileUploadHandler()}
               selectedFile={this.state.selectedFile}

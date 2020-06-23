@@ -11,7 +11,6 @@
   width: 100%;
   flex-wrap: wrap;
   @include mediumWidthPadding;
-  margin: 2vh auto;
   align-items: stretch;
 }
 .buttonDiv > * {
@@ -27,6 +26,7 @@
   &:hover {
     color: #ffffff;
     background-color: var(--nnn-green);
+    text-decoration: none;
   }
 }
 
@@ -96,6 +96,13 @@
   margin: 1rem;
 }
 
+.columnWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .formGroup {
   width: 100%;
   margin: 2rem inherit;
@@ -129,4 +136,15 @@
 
 .confirmButtonWrapper > * {
   margin: 1rem 0;
+}
+
+.mediumBox {
+  @include mediumWidthBox;
+}
+
+.smallPanel {
+  @include smallWidthPadding;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
