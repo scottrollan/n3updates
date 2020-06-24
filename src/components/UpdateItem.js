@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom';
 import $ from 'jquery';
 import { Client } from '../constants/index';
 import Confirm from './popups/Confirm';
+import Thinking from './popups/Thinking';
 import ActionComplete from './popups/ActionComplete';
 import Conditions from './inputSections/Conditions';
 import Names from './inputSections/Names';
@@ -123,7 +124,6 @@ class UpdateItem extends React.Component {
     const array = $(`#${id}`).attr('array');
     let pushThisArray = this.state[array];
     const alreadyIncludes = pushThisArray.includes(name);
-    console.log(name, array);
     if (alreadyIncludes) {
       pushThisArray = pushThisArray.filter((word) => word !== name);
     } else {
@@ -252,7 +252,10 @@ class UpdateItem extends React.Component {
 
   doUpdate = () => {
     $('#confirm').css('display', 'none');
-    this.submitForm();
+    $('#thinking').css('display', 'flex');
+    const now = new Date();
+    const preUpdate = Date.parse(now);
+    this.submitForm(preUpdate);
   };
 
   closeSuccess = () => {
@@ -271,7 +274,7 @@ class UpdateItem extends React.Component {
     this.setState({ imageAssetRef: imageRes._id });
   };
 
-  submitForm = () => {
+  submitForm = async (preUpdate) => {
     //delete all state key/value pairs not used in plant schema
     delete form.optionText;
     delete form.container1Size;
@@ -287,12 +290,22 @@ class UpdateItem extends React.Component {
     delete form.form;
     delete form.selectedFile;
     delete form.redirect;
+    //convert string to number
+    const fixLow = Number(form.lowZone);
+    form.lowZone = fixLow;
+    const fixHigh = Number(form.highZone);
+    form.highZone = fixHigh;
 
-    Client.createOrReplace(form).catch((err) => {
-      console.error('Oh no, the update failed: ', err.message);
+    let response = await Client.createOrReplace(form).catch((err) => {
+      alert('Oh no, the update failed: ', err.message);
     });
 
-    $('#success').css('display', 'flex');
+    const updatedAt = Date.parse(response._updatedAt);
+
+    if (updatedAt >= preUpdate) {
+      $('#thinking').css('display', 'none');
+      $('#success').css('display', 'flex');
+    }
   };
 
   componentDidMount() {
@@ -312,6 +325,7 @@ class UpdateItem extends React.Component {
           stopAction={() => this.doNotUpdate()}
           doAction={() => this.doUpdate()}
         />
+        <Thinking variant="warning" />
         <ActionComplete
           botanicalName={this.state.botanicalName}
           variety={this.state.variety}

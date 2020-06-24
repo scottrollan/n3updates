@@ -5,6 +5,7 @@ import $ from 'jquery';
 import { Client } from '../constants/index';
 import MissingField from './popups/MissingField';
 import Confirm from './popups/Confirm';
+import Thinking from './popups/Thinking';
 import ActionComplete from './popups/ActionComplete';
 import Conditions from './inputSections/Conditions';
 import Names from './inputSections/Names';
@@ -224,6 +225,7 @@ class NewItem extends React.Component {
 
   doCreate = () => {
     $('#confirm').css('display', 'none');
+    $('#thinking').css('display', 'flex');
     this.submitForm();
   };
 
@@ -247,7 +249,7 @@ class NewItem extends React.Component {
     this.setState({ imageAssetRef: imageRes._id });
   };
 
-  submitForm = () => {
+  submitForm = async () => {
     //delete all state key/value pairs used to create the above arrays
     delete form.container1Size;
     delete form.container1Price;
@@ -270,11 +272,16 @@ class NewItem extends React.Component {
     const fixHigh = Number(form.highZone);
     form.highZone = fixHigh;
 
-    Client.create(form).catch((err) => {
-      console.error('Oh no, create failed: ', err.message);
-    });
+    let response = await Client.create(form);
+    console.log(response);
+    if (response._createdAt) {
+      setTimeout(() => $('#thinking').css('display', 'none'), 1400);
+      setTimeout(() => $('#success').css('display', 'flex'), 1450);
+    } else {
+      alert('HTTP-Error: ' + response.status);
+    }
 
-    $('#success').css('display', 'flex');
+    // $('#success').css('display', 'flex');
   };
 
   render() {
@@ -291,6 +298,7 @@ class NewItem extends React.Component {
           stopAction={() => this.doNotCreate()}
           doAction={() => this.doCreate()}
         />
+        <Thinking variant="success" />
         <ActionComplete
           botanicalName={this.state.botanicalName}
           variety={this.state.variety}

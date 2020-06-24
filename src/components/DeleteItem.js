@@ -3,6 +3,7 @@ import { Client } from '../constants/index';
 import { Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import $ from 'jquery';
+import Thinking from './popups/Thinking';
 import Confirm from './popups/Confirm';
 import ActionComplete from './popups/ActionComplete';
 import styles from './Stylesheet.module.scss';
@@ -42,10 +43,15 @@ const DeleteItem = ({ match }) => {
 
   const doDelete = async () => {
     $('#confirm').css('display', 'none');
+    $('#thinking').css('display', 'flex');
 
     let response = await Client.delete(docId);
-    console.log(response);
-    $('#success').css('display', 'flex');
+    if (response.results.length !== 0) {
+      setTimeout(() => $('#thinking').css('display', 'none'), 1400);
+      setTimeout(() => $('#success').css('display', 'flex'), 1450);
+    } else {
+      alert('HTTP-Error: ' + response.status);
+    }
   };
 
   return (
@@ -57,6 +63,7 @@ const DeleteItem = ({ match }) => {
         stopAction={() => doNotDelete()}
         doAction={() => doDelete()}
       />
+      <Thinking variant="danger" />
       <ActionComplete
         botanicalName={item.botanicalName}
         variety={item.variety}

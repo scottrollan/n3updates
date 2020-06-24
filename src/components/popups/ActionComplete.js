@@ -14,7 +14,9 @@ const ActionComplete = (props) => {
           was successfully {props.action}{' '}
         </h6>
 
-        <Button onClick={() => props.closeMe()}>Close</Button>
+        <Button variant="secondary" onClick={() => props.closeMe()}>
+          Close
+        </Button>
       </div>
     </div>
   );
